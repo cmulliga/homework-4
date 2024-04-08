@@ -1,7 +1,7 @@
 #Preliminaries
 
 if (!require("pacman")) install.packages("pacman")
-pacman::p_load(tidyverse, ggplot2, dplyr, lubridate, stringr, readxl, data.table, gdata, rddensity, rdd)
+pacman::p_load(tidyverse, ggplot2, dplyr, lubridate, stringr, readxl, data.table, gdata, rddensity, rdd, MatchIt)
 
 #Load Data
 
@@ -115,7 +115,6 @@ shares.graph
 
 #Install 'rdrobust' Package
 if (!require("rdrobust")) install.packages("rdrobust")
-
 library(rdrobust)
 
 
@@ -217,20 +216,68 @@ bandwidth.graph <- ggplot(results, aes(x=Bandwidth, y=Estimate, color=factor(Sta
 
 bandwidth.graph
 
-#Load 'rddensity' Package
+#Load Packages
 
 if (!require("rddensity")) install.packages("rddensity")
-
 library(rddensity)
 
 if (!require("rdd")) install.packages("rdd")
-
 library(rdd)
 
-# Create Plots
+if (!require("MatchIt")) install.packages("MatchIt")
+library(MatchIt)
+
+#Create Plots
+
 density.three <- rddensity(ma.threestar.rd$score, c=0)
 rdplotdensity(density.three, ma.threestar.rd$score)
 
 density.threefive <- rddensity(ma.threefive.rd$score, c=0)
 rdplotdensity(density.threefive, ma.threefive.rd$score)
 
+#Matching Propensity Scores
+
+match.belowthree <- matchit(treat ~ plan_type + partd, 
+                         data = ma.threestar.rd %>% 
+                               filter(score =< 3, 
+                                      !is.na(treat), 
+                                      plan_type == "HMO", 
+                                      !is.na(partd)),
+                             method = NULL, distance = "mahalanobis")
+
+ match.abovethree <- matchit(treat ~ plan_type + partd, 
+                             data = ma.threestar.rd %>% 
+                               filter(score >= 3, 
+                                      !is.na(treat), 
+                                      plan_type == "HMO", 
+                                      !is.na(partd)),
+                             method = NULL, distance = "mahalanobis")
+
+
+#Estimate Effect
+ estimate.three.hmo <- rdrobust(y=ma.threestar.rd$HMO, x=ma.threestar.rd$score, c=0,
+                  h=0.125, p=1, kernel="uniform", vce="hc0",
+                  masspoints="off")
+
+ summary(estimate.three.hmo)
+
+ estimate.three.partd <- rdrobust(y=ma.threestar.rd$PartD, x=ma.threestar.rd$score, c=0,
+                  h=0.125, p=1, kernel="uniform", vce="hc0",
+                  masspoints="off")
+
+ summary(estimate.three.partd)
+
+ #Repeat for 3.5 Star
+ estimtate.threefive.hmo <- rdrobust(y=ma.threefive.rd$HMO, x=ma.threefive.rd$score, c=0,
+                  h=0.125, p=1, kernel="uniform", vce="hc0",
+                  masspoints="off")
+
+ summary(estimate.threefive.hmo)
+
+estimate.threefive.partd <- rdrobust(y=ma.threefive.rd$PartD, x=ma.threefive.rd$score, c=0,
+                  h=0.125, p=1, kernel="uniform", vce="hc0",
+                  masspoints="off")
+
+ summary(estimate.threefive.partd)
+
+save.image("submission1/hwk4_workspace.Rdata")
