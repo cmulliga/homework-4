@@ -4,59 +4,6 @@
 
 ## Assign yearly datasets and clean variables
 
-## 2006
-ma.path.2006a=paste0("data/input/cms-payment-data/2006/2006PartCPlanLevel2.xlsx")
-risk.rebate.2006a=read_xlsx(ma.path.2006a,range="A4:H2088",
-                           col_names=c("contractid","planid","contract_name","plan_type",
-                                       "riskscore_partc","payment_partc","rebate_partc",
-                                       "msa_deposit_partc"))
-ma.path.2006b=paste0("data/input/cms-payment-data/2006/2006PartDPlans2.xlsx")
-risk.rebate.2006b=read_xlsx(ma.path.2006b,range="A4:H3232",
-                            col_names=c("contractid","planid","contract_name","plan_type",
-                                        "directsubsidy_partd","riskscore_partd","reinsurance_partd",
-                                        "costsharing_partd"))
-
-
-
-## 2007
-ma.path.2007a=paste0("data/input/cms-payment-data/2007/2007PartCPlanLevel2.xlsx")
-risk.rebate.2007a=read_xlsx(ma.path.2007a,range="A4:H2572",
-                            col_names=c("contractid","planid","contract_name","plan_type",
-                                        "riskscore_partc","payment_partc","rebate_partc",
-                                        "msa_deposit_partc"))
-ma.path.2007b=paste0("data/input/cms-payment-data/2007/2007PartDPlans2.xlsx")
-risk.rebate.2007b=read_xlsx(ma.path.2007b,range="A4:H4066",
-                            col_names=c("contractid","planid","contract_name","plan_type",
-                                        "directsubsidy_partd","riskscore_partd","reinsurance_partd",
-                                        "costsharing_partd"))
-
-
-## 2008
-ma.path.2008a=paste0("data/input/cms-payment-data/2008/2008PartCPlanLevel2.xlsx")
-risk.rebate.2008a=read_xlsx(ma.path.2008a,range="A4:H3346",
-                            col_names=c("contractid","planid","contract_name","plan_type",
-                                        "riskscore_partc","payment_partc","rebate_partc",
-                                        "msa_deposit_partc"))
-ma.path.2008b=paste0("data/input/cms-payment-data/2008/2008PartDPlans2.xlsx")
-risk.rebate.2008b=read_xlsx(ma.path.2008b,range="A4:H4686",
-                            col_names=c("contractid","planid","contract_name","plan_type",
-                                        "directsubsidy_partd","riskscore_partd","reinsurance_partd",
-                                        "costsharing_partd"))
-
-
-## 2009
-ma.path.2009a=paste0("data/input/cms-payment-data/2009/2009PartCPlanLevel2.xlsx")
-risk.rebate.2009a=read_xlsx(ma.path.2009a,range="A4:H3506",
-                            col_names=c("contractid","planid","contract_name","plan_type",
-                                        "riskscore_partc","payment_partc","rebate_partc",
-                                        "msa_deposit_partc"))
-
-ma.path.2009b=paste0("data/input/cms-payment-data/2009/2009PartDPlans2.xlsx")
-risk.rebate.2009b=read_xlsx(ma.path.2009b,range="A4:H4733",
-                            col_names=c("contractid","planid","contract_name","plan_type",
-                                        "directsubsidy_partd","riskscore_partd","reinsurance_partd",
-                                        "costsharing_partd"))
-
 
 ## 2010
 ma.path.2010a=paste0("data/input/cms-payment-data/2010/2010PartCPlanLevel2.xlsx")
@@ -139,7 +86,7 @@ risk.rebate.2015b=read_xlsx(ma.path.2015b,range="A4:H3755",
                                         "costsharing_partd"))
 
 
-for (y in 2006:2015) {
+for (y in 2010:2015) {
   risk.rebate.a=get(paste("risk.rebate.",y,"a",sep="")) %>%
     mutate_at(vars(c("riskscore_partc","payment_partc","rebate_partc")),
               ~as.numeric(str_replace_all(.,'/$',''))) %>%
@@ -161,8 +108,7 @@ for (y in 2006:2015) {
   
 }
 
-risk.rebate.final=rbind(risk.rebate.2006,risk.rebate.2007,risk.rebate.2008,
-                        risk.rebate.2009,risk.rebate.2010,risk.rebate.2011,
+risk.rebate.final=rbind(risk.rebate.2010,risk.rebate.2011,
                         risk.rebate.2012,risk.rebate.2013,risk.rebate.2014,
                         risk.rebate.2015)
 write_rds(risk.rebate.final,"data/output/risk_rebate.rds")

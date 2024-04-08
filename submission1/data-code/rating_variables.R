@@ -5,82 +5,6 @@
 ## Notes:         Input file to assign global lists for rating variable names in each year
 ########################################################################################
 
-## 2008 Rating variable names
-rating.vars.2008=c("contractid",
-                   "contract_name",
-                   "breastcancer_screen",
-                   "rectalcancer_screen",
-                   "cv_cholscreen",
-                   "diabetes_cholscreen",
-                   "glaucoma_test",
-                   "monitoring",
-                   "flu_vaccine",
-                   "pn_vaccine",
-                   "primaryaccess",
-                   "hospital_followup",
-                   "depression_followup",
-                   "nodelays",
-                   "carequickly",
-                   "overallrating_care",
-                   "overallrating_plan",
-                   "calltime",
-                   "doctor_communicate",
-                   "osteo_manage",
-                   "diabetes_eye",
-                   "diabetes_kidney",
-                   "diabetes_bloodsugar",
-                   "diabetes_chol",
-                   "antidepressant", 
-                   "bloodpressure",
-                   "ra_manage",
-                   "copd_test",
-                   "betablocker",
-                   "appeals_timely",
-                   "appeals_review",
-                   "new_contract")
-
-## 2009 Rating variable names
-rating.vars.2009=c("contractid",
-                   "org_type",
-                   "contract_name",
-                   "org_marketing",
-                   "breastcancer_screen",
-                   "rectalcancer_screen",
-                   "cv_cholscreen",
-                   "diabetes_cholscreen",
-                   "glaucoma_test",
-                   "monitoring",
-                   "flu_vaccine",
-                   "pn_vaccine",
-                   "physical_health",
-                   "mental_health",
-                   "osteo_test",
-                   "physical_monitor",
-                   "primaryaccess",
-                   "hospital_followup",
-                   "depression_followup",
-                   "nodelays",
-                   "carequickly",
-                   "overallrating_care",
-                   "overallrating_plan",
-                   "calltime",
-                   "doctor_communicate",
-                   "customer_service",
-                   "osteo_manage",
-                   "diabetes_eye",
-                   "diabetes_kidney",
-                   "diabetes_bloodsugar",
-                   "diabetes_chol",
-                   "antidepressant", 
-                   "bloodpressure",
-                   "ra_manage",
-                   "copd_test",
-                   "betablocker",
-                   "bladder",
-                   "falling",
-                   "appeals_timely",
-                   "appeals_review")
-
 
 
 ## 2010 Rating variable names
@@ -454,3 +378,4 @@ rating.vars.2018=c("breastcancer_screen",
                    "ttyt_available")
                    
                    
+

@@ -2,6 +2,17 @@
 ## Read in enrollment data for january of each year
 #########################################################################
 
+# Packages
+packages <- c("readr", "magrittr", "dplyr", "tidyr")
+
+# Install and load packages
+for (pkg in packages) {
+  if (!require(pkg, character.only = TRUE)) {
+    install.packages(pkg)
+    library(pkg, character.only = TRUE)
+  }
+}
+
 for (y in 2010:2015) {
   ## Basic contract/plan information
   ma.path=paste0("data/input/monthly-ma-and-pdp-enrollment-by-cpsc/CPSC_Contract_Info_",y,"_01.csv")
@@ -78,10 +89,10 @@ for (y in 2010:2015) {
   write_rds(plan.year,paste0("data/output/ma_data_",y,".rds"))
 }
 
-full.ma.data <- read_rds("data/output/ma_data_2007.rds")
-for (y in 2008:2015) {
+full.ma.data <- read_rds("data/output/ma_data_2010.rds")
+for (y in 2011:2015) {
   full.ma.data <- rbind(full.ma.data,read_rds(paste0("data/output/ma_data_",y,".rds")))
 }
 
 write_rds(full.ma.data,"data/output/full_ma_data.rds")
-sapply(paste0("ma_data_", 2007:2015, ".rds"), unlink)
+sapply(paste0("ma_data_", 2010:2015, ".rds"), unlink)

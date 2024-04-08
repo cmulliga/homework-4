@@ -19,9 +19,10 @@ source("submission1/data-code/1_Plan_Data.R")
 source("submission1/data-code/2_Plan_Characteristics.R")
 source("submission1/data-code/3_Service_Areas.R")
 source("submission1/data-code/4_Penetration_Files.R")
-
-
-
+source("submission1/data-code/5_Star_Ratings.R")
+source("submission1/data-code/6_Risk_Rebates.R")
+source("submission1/data-code/7_MA_Benchmark.R")
+source("submission1/data-code/8_FFS_Costs.R")
 
 # Tidy data ---------------------------------------------------------------
 full.ma.data <- read_rds("data/output/full_ma_data.rds")
@@ -79,6 +80,8 @@ final.data <- final.data %>%
   left_join( benchmark.final,
              by=c("ssa","year"))
 
+# Convert risk_ab to numeric
+final.data$risk_ab <- as.numeric(final.data$risk_ab)
 
 # calculate relevant benchmark rate based on star rating
 final.data <- final.data %>% ungroup() %>%

@@ -3,9 +3,6 @@
 ##############################################################################
 
 ## Assign yearly file paths
-bench.path.2007=paste0("data/input/ma-benchmarks/ratebook2007/countyrate2007.csv")
-bench.path.2008=paste0("data/input/ma-benchmarks/ratebook2008/countyrate2008.csv")
-bench.path.2009=paste0("data/input/ma-benchmarks/ratebook2009/countyrate2009.csv")
 bench.path.2010=paste0("data/input/ma-benchmarks/ratebook2010/CountyRate2010.csv")
 bench.path.2011=paste0("data/input/ma-benchmarks/ratebook2011/CountyRate2011.csv")
 bench.path.2012=paste0("data/input/ma-benchmarks/ratebook2012/CountyRate2012.csv")
@@ -14,12 +11,12 @@ bench.path.2014=paste0("data/input/ma-benchmarks/ratebook2014/CountyRate2014.csv
 bench.path.2015=paste0("data/input/ma-benchmarks/ratebook2015/CSV/CountyRate2015.csv")
 
 ## Assign number of rows to drop in each CSV (they are all different because why not :))
-drops=array(dim=c(9,2))
-drops[,1]=c(2007:2015)
-drops[,2]=c(9,10,9,9,11,8,4,2,3)
+drops=array(dim=c(6,2))
+drops[,1]=c(2010:2015)
+drops[,2]=c(9,10,9,9,11,8)
 
-## Years 2007-2011
-for (y in 2007:2011){
+## Years 2010-2011
+for (y in 2010:2011){
   d=drops[which(drops[,1]==y),2]
   bench.data=read_csv(get(paste0("bench.path.",y)),
                       skip=d,
@@ -78,7 +75,6 @@ bench.data.2015 = bench.data.2015 %>%
          year=2015)
 
 
-benchmark.final=rbind(bench.data.2007, bench.data.2008, bench.data.2009,
-                      bench.data.2010, bench.data.2011, bench.data.2012,
+benchmark.final=rbind(bench.data.2010, bench.data.2011, bench.data.2012,
                       bench.data.2013, bench.data.2014, bench.data.2015)
 write_rds(benchmark.final,"data/output/ma_benchmark.rds")
