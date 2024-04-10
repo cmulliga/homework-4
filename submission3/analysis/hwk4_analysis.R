@@ -85,6 +85,10 @@ shares.graph
 
 ##Estimate ATEs
 
+#Install 'rdrobust' Package
+if (!require("rdrobust")) install.packages("rdrobust")
+library(rdrobust)
+
 #Read and Clean Data
 
 ma.data <- read_rds("data/output/final_ma_data.rds")
@@ -196,10 +200,23 @@ bandwidth.graph <- ggplot(results, aes(x=Bandwidth, y=Estimate)) +
 
 bandwidth.graph
 
+#Load Packages
+
+if (!require("rddensity")) install.packages("rddensity")
+library(rddensity)
+
+if (!require("rdd")) install.packages("rdd")
+library(rdd)
+
 #Create Plots
 
 density.three <- rddensity(ma.threestar.rd$score, c=0)
 rdplotdensity(density.three, ma.threestar.rd$score)
+
+density.one <- density.three %>% 
+  ggplot(aes(x = star_rating, y = score)) +
+  geom_density() +
+  geom_
 
 density.threefive <- rddensity(ma.threefive.rd$score, c=0)
 rdplotdensity(density.threefive, ma.threefive.rd$score)

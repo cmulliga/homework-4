@@ -3,6 +3,19 @@
 if (!require("pacman")) install.packages("pacman")
 pacman::p_load(tidyverse, ggplot2, dplyr, lubridate, stringr, readxl, data.table, gdata, rddensity, rdd, MatchIt)
 
+#Install 'rdrobust' Package
+if (!require("rdrobust")) install.packages("rdrobust")
+library(rdrobust)
+
+if (!require("rddensity")) install.packages("rddensity")
+library(rddensity)
+
+if (!require("rdd")) install.packages("rdd")
+library(rdd)
+
+if (!require("MatchIt")) install.packages("MatchIt")
+library(MatchIt)
+
 #Load Data
 
 final.data<- read_rds("data/output/final_ma_data.rds")
@@ -113,10 +126,6 @@ shares.graph
 
 ##Estimate ATEs
 
-#Install 'rdrobust' Package
-if (!require("rdrobust")) install.packages("rdrobust")
-library(rdrobust)
-
 
 #Read and Clean Data
 
@@ -215,17 +224,6 @@ bandwidth.graph <- ggplot(results, aes(x=Bandwidth, y=Estimate, color=factor(Sta
   theme_classic()
 
 bandwidth.graph
-
-#Load Packages
-
-if (!require("rddensity")) install.packages("rddensity")
-library(rddensity)
-
-if (!require("rdd")) install.packages("rdd")
-library(rdd)
-
-if (!require("MatchIt")) install.packages("MatchIt")
-library(MatchIt)
 
 #Create Plots
 
