@@ -17,7 +17,9 @@ sum.data <- final.data %>%
 
 boxwhisker.plot<- ggplot(sum.data, aes(x = factor(year), y = planid)) +
   geom_boxplot() +
-  labs(x = "Year", y = "Plan Counts (#)", title = "Distribution of Plan Counts by County Over Time") +
+  labs(x = "Year", 
+  y = "Plan Counts (#)", 
+  title = "Distribution of Plan Counts by County Over Time") +
   theme_classic()
 
 boxwhisker.plot
@@ -30,7 +32,7 @@ filtered.data <- final.data %>%
 #Count Star Ratings
 
 rating.counts <- filtered.data %>%
-  group_by(year, Star_Rating) %>%
+  group_by(Star_Rating, year) %>%
   summarise(count = n())
 
 #Create Graph
@@ -38,7 +40,9 @@ rating.counts <- filtered.data %>%
 bar.graph<- ggplot(rating.counts, aes(x = factor(Star_Rating), y = count, fill = factor(year))) +
   geom_bar(stat = "identity", position = "dodge") +
   facet_wrap(~year, scales = "free") +
-  labs(x = "Star Rating", y = "Count (#)", title = "Distribution of Star Ratings Over Time") +
+  labs(x = "Star Rating", 
+  y = "Count (#)", 
+  title = "Distribution of Star Ratings Over Time") +
   theme_classic()
 
 bar.graph
@@ -58,7 +62,6 @@ avg.payments <- filtered.data %>%
 
 benchmark.graph <- ggplot(avg.payments, aes(x = year, y = avg.payments)) +
   geom_line() +
-  geom_point() +
   labs(title = "Average Benchmark Payment from 2010 to 2015",
        x = "Year",
        y = "Average Benchmark Payment") +
@@ -66,10 +69,6 @@ benchmark.graph <- ggplot(avg.payments, aes(x = year, y = avg.payments)) +
 
 benchmark.graph
 
-#Load Penetration Data
-
-ma.penetration<- read_rds("data/output/ma_penetration.rds")
-ffs.costs<- read_rds("data/output/ffs_costs.rds")
 
 enrollment.summary <- ffs.costs %>%
   group_by(year) %>%
@@ -105,8 +104,9 @@ filtered.data <- filtered.data %>%
 
 shares.graph <- ggplot(filtered.data, aes(x = year, y = average_ma_share)) +
   geom_line() +
-  geom_point() +
-  labs(x = "Year", y = "Avg. Share of MA", title = "Avg. Share of MA from 2010 to 2015") +
+  labs(x = "Year", 
+  y = "Avg. Share of MA", 
+  title = "Avg. Share of MA from 2010 to 2015") +
   theme_classic()
 
 shares.graph
