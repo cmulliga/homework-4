@@ -190,7 +190,7 @@ for (h in bandwidths) {
 
 #Create Graph
 
-bandwidth.graph <- ggplot(results, aes(x=Bandwidth, y=Estimate, color=factor(Star_Rating))) +
+bandwidth.graph <- ggplot(results, aes(x=Bandwidth, y=Estimate)) +
   geom_line() +
   labs(x="Bandwidth", 
        y="Estimate", 
