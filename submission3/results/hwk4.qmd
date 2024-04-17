@@ -1,10 +1,10 @@
 ---
 title: "Homework 4"
-subtitle: "Submission 2"
+subtitle: "Submission 3"
 author: Conor Mulligan
 format:
   pdf:
-    output-file: "mulligan-c-hwk4-2"
+    output-file: "mulligan-c-hwk4-3"
     output-ext:  "pdf"
     header-includes:
       - \usepackage{float}
@@ -13,7 +13,7 @@ format:
 
 ---
 
-Second submission of homework 4. 
+Third submission of homework 4. 
 
 [Link to Github](https://github.com/cmulliga/homework-4)
 
@@ -28,7 +28,7 @@ packages <- c("tidyverse", "ggplot2", "dplyr", "lubridate", "stringr", "readxl",
 ```{r}
 #| include: false
 #| eval: true
-load("C:/Users/ctmul/Emory_Files/ECON_470-1/homework-4/submission2/hwk4_workspace.Rdata")
+load("C:/Users/ctmul/Emory_Files/ECON_470-1/homework-4/submission3/hwk4_workspace.Rdata")
 ```
 
 \newpage
@@ -46,7 +46,7 @@ load("C:/Users/ctmul/Emory_Files/ECON_470-1/homework-4/submission2/hwk4_workspac
 boxwhisker.plot
 ```
 
- This box and whisker plot shows the distribution of plan counts by county. Some outliers can be seen in the data, particularly around years like 2010. It may be wise to remove these, but otherwise the number of plans seems sufficient, as the general box for each plan is around the same.
+ This box and whisker plot shows the distribution of plan counts by county. The general box for each plan is around the same, although there is a dip after 2010 to the later years; the median plan count appears to be around 25 for most years, so I would say the count is sufficient.
 
 
 \newpage
@@ -79,7 +79,7 @@ This graph displays a shift towards higher star ratings over time. The distribut
 benchmark.graph
 ```
 
-This graph shows the average benchmark payment rising before falling again over time.
+This graph shows the average benchmark payment rising before falling again over time. Policy changes most likely account for this falloff, which appears more drastic given the scale of the graph than it actually is.
 
 
 \newpage
@@ -94,7 +94,7 @@ This graph shows the average benchmark payment rising before falling again over 
 shares.graph
 ```
 
-This graph shows that the average share of Medicare Advantage enrollees increased from 2010 to 2015. It follows a similar trend to the previous graph, suggesting a possible correlation between two. It does not dip at the 2015 mark like the previous graph however, which is interesting.
+This graph shows that the average share of Medicare Advantage enrollees increased from 2010 to 2015. It follows a similar trend to the previous graph, suggesting a possible correlation between the two. It does not dip at the 2015 mark like the previous graph however, which is interesting.
 
 
 \newpage
@@ -111,10 +111,10 @@ This graph shows that the average share of Medicare Advantage enrollees increase
 if (!require("knitr")) install.packages("knitr")
 library(knitr)
 
-kable(ma.rounded, caption = "Count of Plans Rounded into Nearest Half Ratings")
+kable(starcount.table, caption = "Count of Plans Rounded into Nearest Half Ratings")
 ```
 
-
+As expected, there are no plans in the 4.5 and 5 star ratings for this given count, which should be the case given there were not really many high star rating plans during the time the count is set at (2010).
 
 \newpage
 \noindent 6. Using the RD estimator with a bandwidth of 0.125, provide an estimate of the effect of receiving a 3-star versus a 2.5 star rating on enrollments. Repeat the exercise to estimate the effects at 3.5 stars, and summarize your results in a table.<br>
@@ -128,6 +128,7 @@ kable(three.table, caption = "3-Star vs. 2.5-Star")
 
 ```
 
+This first table shows the estimated difference in enrollment between 3 and 2.5 star-rating groups. The coefficient of -0.049 suggests that a 3-star rating is correlated with a lower enrollment probability, which does not make sense intuitively, but the P value of 1 (unnamed column; couldn't get name to load) suggests this may not be a significant result.
 
 \newpage
 
@@ -139,7 +140,7 @@ kable(threefive.table, caption = "3.5-Star vs. 3-Star")
 
 ```
 
-
+The second table shows the estimated difference in enrollment between 3 and 3.5 star-rating groups. The coefficient of 0.00138 suggests that a 3.5-star rating is correlated with a higher enrollment probability than a 3-star plan. This makes sense intuitively, but as before the the P value of 1 suggests this may not be a significant result.
 
 \newpage
 \noindent 7. Repeat your results for bandwidths of 0.1, 0.12, 0.13, 0.14, and 0.15 (again for 3 and 3.5 stars). Show all of the results in a graph. How sensitive are your findings to the choice of bandwidth?<br>
@@ -171,14 +172,14 @@ This graph shows the RD estimate for the effect of a 3-star rating compared to a
 if (!require("rddensity")) install.packages("rddensity")
 library(rddensity)
 
-rdplotdensity(density.three, ma.threestar.rd$score)
+first.density
 
-rdplotdensity(density.threefive, ma.threefive.rd$score)
+
+second.density
 
 ```
 
-I now have a graph but it seems to be lacking in any sort of labels or clarity. Based on what is here there seems to be more of a concentration towards higher rated plans, but the graphs are unclear.
-
+The density of scores around 3.5 appears to be slightly greater (second graph) than in the first graph, which suggests a shift towards greater star plans consistent with the changes in plans over time.
 
 \newpage
 \noindent 9. Similar to question 4, examine whether plans just above the threshold values have different characteristics than contracts just below the threshold values. Use HMO and Part D status as your plan characteristics.<br>
@@ -192,11 +193,21 @@ first.plot
 
 ```
 
+There appears to be a very small difference between Part D and HMO plans in this first 3-star rating graph.
 
-For this question, I was only able to get the correct graph to display for my 3-star ratings (above and below). I will need to edit my code for the 3.5 star one to include.
+```{r}
+#| echo: false
+#| warning: false
+#| fig-cap: "Comparison Below and Above 3.5-Star Threshold"
+
+second.plot
+
+```
+
+There are also relatively small differences when the star rating is around the 3.5-star threshold.
 
 
 \newpage
 \noindent 10. Summarize your findings from 5-9. What is the effect of increasing a star rating on enrollments? Briefly explain your results.<br>
 
-Overall, there seems to be a positive correlation between higher star ratings and increased enrollment in Medicare Advantage plans. High star ratings tend to have more enrollees versus plans with low star ratings. The two graphs showing trends of increasing star ratings over time and increased enrollments supports this notion. This holds true as years move from 2010 to 2015.
+Overall, there seems to be a positive correlation between higher star ratings and increased enrollment in Medicare Advantage plans. High star ratings tend to have more enrollees versus plans with low star ratings. Most graphs show trends of increasing star ratings over time and increasing enrollments to support this notion. This holds true as years move from 2010 to 2015. The cutoff appears to mostly be around 3-stars as there is not much difference when reachiing this seemingly critical rating. 

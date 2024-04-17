@@ -1,7 +1,9 @@
 #Preliminaries
 
 if (!require("pacman")) install.packages("pacman")
-pacman::p_load(tidyverse, ggplot2, dplyr, lubridate, stringr, readxl, data.table, gdata, rddensity, rdd, MatchIt)
+pacman::p_load(tidyverse, ggplot2, dplyr, lubridate, stringr, readxl, data.table, gdata, rddensity, MatchIt, rdrobust, cobalt)
+
+
 
 #Load Data
 
@@ -16,7 +18,8 @@ sum.data <- final.data %>%
 #Create Plot
 
 boxwhisker.plot<- ggplot(sum.data, aes(x = factor(year), y = planid)) +
-  geom_boxplot() +
+  geom_boxplot(outlier.shape = NA) +
+  ylim(0,75) +
   labs(x = "Year", y = "Plan Counts (#)", title = "Distribution of Plan Counts by County Over Time") +
   theme_classic()
 
@@ -36,7 +39,7 @@ rating.counts <- filtered.data %>%
 #Create Graph
 
 bar.graph<- ggplot(rating.counts, aes(x = factor(Star_Rating), y = count, fill = factor(year))) +
-  geom_bar(stat = "identity", position = "dodge") +
+  geom_bar(stat = "identity", position = "dodge",) +
   facet_wrap(~year, scales = "free") +
   labs(x = "Star Rating", y = "Count (#)", title = "Distribution of Star Ratings Over Time") +
   theme_classic()
@@ -58,6 +61,7 @@ avg.payments <- filtered.data %>%
 
 benchmark.graph <- ggplot(avg.payments, aes(x = year, y = avg.payments)) +
   geom_line() +
+  geom_point() +
   labs(title = "Average Benchmark Payment from 2010 to 2015",
        x = "Year",
        y = "Average Benchmark Payment") +
@@ -67,17 +71,19 @@ benchmark.graph
 
 #Enrollment Shares
 
-
-enrollment.summary <- final.data %>%
-  group_by(year) %>%
-  summarize(med.proportion = sum(avg_enrollment, na.rm = TRUE) / sum(avg_eligibles, na.rm = TRUE))
+enrollment.summary <- ma.data %>%
+  group_by(fips, year) %>%
+  summarize(enroll = first(avg_enrolled),
+            medicare = first(avg_eligibles),
+            bench = mean(ma_rate, na.rm = TRUE)) %>%
+  mutate(med.proportion = enroll / medicare)
 
 #Create Graph
 
 shares.graph <- ggplot(enrollment.summary, aes(x = year, y = med.proportion)) +
-  geom_line() +
+  geom_line(stat = "summary", fun = "mean") +
   labs(x = "Year", 
-       y = "Avg. Share of MA", 
+       y = "Avg. Share of MA Enrollment", 
        title = "Avg. Share of MA from 2010 to 2015") +
   theme_classic()
 
@@ -85,11 +91,7 @@ shares.graph
 
 ##Estimate ATEs
 
-#Install 'rdrobust' Package
-if (!require("rdrobust")) install.packages("rdrobust")
-library(rdrobust)
-
-#Read and Clean Data
+#Read and Clean Data (From Prof's Code)
 
 ma.data <- read_rds("data/output/final_ma_data.rds")
 
@@ -115,21 +117,28 @@ ma.data.clean <- ma.data.clean %>%
 
 
 ma.rounded <- ma.data.clean %>%
-  select(raw_rating) %>%
-  mutate(three = sum(ifelse(raw_rating >= 2.75 & raw_rating < 3.25, 1, 0), na.rm = T), 
-  three_five = sum(ifelse(raw_rating >= 3.25 & raw_rating < 3.75, 1, 0), na.rm = T), 
-  four = sum(ifelse(raw_rating >= 3.75 & raw_rating < 4.25, 1, 0), na.rm = T), 
-  four_five = sum(ifelse(raw_rating >= 4.25 & raw_rating < 4.75, 1, 0), na.rm = T), 
-  five = sum(ifelse(raw_rating <= 3.75, 1, 0), na.rm = T))%>%
-  head(n=1)
+  mutate(rounded_30 = ifelse(raw_rating >= 2.75 & raw_rating < 3.00 & Star_Rating == 3.0, 1, 0),
+         rounded_35 = ifelse(raw_rating >= 3.25 & raw_rating < 3.50 & Star_Rating == 3.5, 1, 0),
+         rounded_40 = ifelse(raw_rating >= 3.75 & raw_rating < 4.00 & Star_Rating == 4.00, 1, 0), 
+         rounded_45 = ifelse(raw_rating >= 4.25 & raw_rating < 4.50 & Star_Rating == 4.50, 1, 0), 
+         rounded_50 = ifelse(raw_rating >= 4.75 & raw_rating < 5.00 & Star_Rating == 5.00, 1, 0))
+
+starcount.table <- ma.rounded %>%
+  summarize(`3-star` = sum(rounded_30),
+            `3.5-star` = sum(rounded_35),
+            `4-star` = sum(rounded_40),
+            `4.5-star` = sum(rounded_45),
+            `5-star` = sum(rounded_50))
+
+starcount.table
 
 
 #Create Estimate (3 Stars)
 
 ma.threestar.rd <- ma.data.clean %>%
   filter(Star_Rating==2.5 | Star_Rating==3) %>%
-  mutate(score = raw_rating - 3,
-         treat = (score>=0),
+  mutate(score = raw_rating - 2.75,
+         treat = (Star_Rating == 3.0),
          first = (score>=-.125 & score<=.125),
          second = (score>=-.125 & score<=.125),
          mkt.share = avg_enrollment/avg_eligibles,
@@ -144,7 +153,7 @@ summary(threestar.estimate)
 
 #Extract Specific Values for Table
 
-three.table <- rbind(threestar.estimate$coef,threestar.estimate$p, threestar.estimate$z, threestar.estimate$se)
+three.table <- cbind(threestar.estimate$coef,threestar.estimate$p, threestar.estimate$z, threestar.estimate$se)
 
 three.table
 
@@ -153,7 +162,7 @@ three.table
 
 ma.threefive.rd <- ma.data.clean %>%
   filter(Star_Rating==3 | Star_Rating==3.5) %>%
-  mutate(score = raw_rating - 3.5,
+  mutate(score = raw_rating - 3.25,
          treat = (score>=0),
          first = (score>=-.125 & score<=.125),
          second = (score>=-.125 & score<=.125),
@@ -167,7 +176,7 @@ threefive.estimate <- rdrobust(y=ma.threefive.rd$mkt.share, x=ma.threefive.rd$sc
 
 summary(threefive.estimate)
 
-threefive.table <- rbind(threefive.estimate$coef,threefive.estimate$p, threefive.estimate$z, threefive.estimate$se)
+threefive.table <- cbind(threefive.estimate$coef,threefive.estimate$p, threefive.estimate$z, threefive.estimate$se)
 
 threefive.table
 
@@ -181,16 +190,18 @@ results <- data.frame()
 
 #Loop BWs
 
-for (h in seq(0.1, 0.15, 0.01)) {
+for (h in bandwidths) {
   threestar.estimate <- rdrobust(y=ma.threestar.rd$mkt.share, x=ma.threestar.rd$score, c=0, h=h, p=1, kernel="uniform", vce="hc0", masspoints="off")
   results <- rbind(results, data.frame(Bandwidth=h, Star_Rating=3, Estimate=threestar.estimate$coef[1]))
-  threefive.estimate<- rdrobust(y=ma.threefive.rd$mkt.share, x=ma.threefive.rd$score, c=0, h=h, p=1, kernel="uniform", vce="hc0", masspoints="off")
+
+  threefive.estimate <- rdrobust(y=ma.threefive.rd$mkt.share, x=ma.threefive.rd$score, c=0, h=h, p=1, kernel="uniform", vce="hc0", masspoints="off")
   results <- rbind(results, data.frame(Bandwidth=h, Star_Rating=3.5, Estimate=threefive.estimate$coef[1]))
+
 }
 
 #Create Graph
 
-bandwidth.graph <- ggplot(results, aes(x=Bandwidth, y=Estimate)) +
+bandwidth.graph <- ggplot(results, aes(x=Bandwidth, y=Estimate, color = factor(Star_Rating))) +
   geom_line() +
   labs(x="Bandwidth", 
        y="Estimate", 
@@ -200,32 +211,13 @@ bandwidth.graph <- ggplot(results, aes(x=Bandwidth, y=Estimate)) +
 
 bandwidth.graph
 
-#Load Packages
-
-if (!require("rddensity")) install.packages("rddensity")
-library(rddensity)
-
-if (!require("rdd")) install.packages("rdd")
-library(rdd)
-
 #Create Plots
 
 density.three <- rddensity(ma.threestar.rd$score, c=0)
-rdplotdensity(density.three, ma.threestar.rd$score)
-
-density.one <- density.three %>% 
-  ggplot(aes(x = star_rating, y = score)) +
-  geom_density() +
-  geom_
+first.density <- rdplotdensity(density.three, ma.threestar.rd$score)
 
 density.threefive <- rddensity(ma.threefive.rd$score, c=0)
-rdplotdensity(density.threefive, ma.threefive.rd$score)
-
-#Load
-
-library(dplyr)
-if (!require("cobalt")) install.packages("cobalt")
-library(cobalt)
+second.density <- rdplotdensity(density.threefive, ma.threefive.rd$score)
 
 #Create Variables
 
@@ -239,9 +231,9 @@ lp.vars <- ma.data.clean %>%
   filter(complete.cases(.))
 
 lp.covs <- lp.vars %>% 
-select(plan_type, partd)
+  select(plan_type, partd)
 
-first.plot <- love.plot(aes(lp.covs, treat = lp.vars$rounded), 
+first.plot <- love.plot(bal.tab(lp.covs, treat = lp.vars$rounded), 
                      colors = "#12e2d4", 
                      shapes = "square") +
   geom_vline(xintercept = 0, linetype = "dashed", color = "red")+
@@ -252,4 +244,26 @@ first.plot <- love.plot(aes(lp.covs, treat = lp.vars$rounded),
 first.plot
 
 
-save.image("submission2/hwk4_workspace.Rdata")
+lp.vars2 <- ma.data.clean %>% 
+  ungroup() %>%
+  filter((raw_rating >= 3.25 - .125 & Star_Rating == 3) | 
+         (raw_rating <= 3.25 + .125 & Star_Rating == 3.5)) %>% 
+  mutate(rounded = (Star_Rating == 3.5),
+         plan_type = ifelse(plan_type == "HMO/HMOPOS", 1, 0)) %>%
+  select(plan_type, partd, rounded) %>%
+  filter(complete.cases(.))
+
+lp.covs2 <- lp.vars2 %>% 
+  select(plan_type, partd)
+
+second.plot <- love.plot(bal.tab(lp.covs2, treat = lp.vars2$rounded), 
+                     colors = "#12e2d4", 
+                     shapes = "square") +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "red")+
+                     labs(y = "Plan Types",
+                     title = "Plans Above Threshold Value") +
+  theme_classic()
+
+second.plot
+
+save.image("submission3/hwk4_workspace.Rdata")
